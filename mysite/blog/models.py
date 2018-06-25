@@ -10,16 +10,34 @@ class Category(models.Model):
     is_delete = models.BooleanField(default=False)
     name = models.CharField(max_length=128)
     describle = models.CharField(max_length=256, default="")
-    image = models.ImageField(upload_to='/var/test')
+    # image = models.ImageField(upload_to='/var/test')
 
+    def __str__(self):
+        return self.name
 
-class Tag(models.Model):
+class Author(models.Model):
     create_time = models.DateTimeField(auto_now_add=timezone.now())
     update_time = models.DateTimeField(auto_now=timezone.now())
     is_delete = models.BooleanField(default=False)
     name = models.CharField(max_length=64)
-    describle = models.CharField(max_length=128, default="")
+    nickname = models.CharField(max_length=64, default="")
+    gender = models.IntegerField(choices=((0, 'secret'), (1, 'male'), (2, 'female')), default=0)
+    signature = models.CharField(max_length=128, default='lol')
+
+    def __str__(self):
+        return self.name
+
 
 
 class Article(models.Model):
-    pass
+    create_time = models.DateTimeField(auto_now_add=timezone.now())
+    update_time = models.DateTimeField(auto_now=timezone.now())
+    is_delete = models.BooleanField(default=False)
+    title = models.CharField(max_length=128)
+    describle = models.CharField(max_length=256)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    content = models.TextField()
+
+    def __str__(self):
+        return self.title

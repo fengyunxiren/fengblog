@@ -4,8 +4,8 @@
       <p class="detail-title">{{ article.title }}</p>
       <p class="detail-author">
           <span>
-              <i class="el-icon-edit-outline"></i>
-              {{ article.author }}
+              <i class="el-icon-edit-outline user-editor" @click="gotoArticleUpdate(article.id)"></i>
+              {{ article.nickname }}
           </span>
           <span>
               <i class="el-icon-time"></i>
@@ -20,6 +20,7 @@
       :editable="false"
       :toolbarsFlag="false"
       :ishljs="true"
+      :boxShadow="false"
       ></mavon-editor>
   </div>
 </template>
@@ -40,15 +41,13 @@ export default {
     showArticles () {
       var id = ''
       id = this.$route.params.id
-      this.$http.get('http://127.0.0.1:8000/blog/article/' + id + '/')
+      this.$http.get('http://127.0.0.1:8000/api/article/' + id + '/')
         .then((response) => {
-          var res = JSON.parse(response.bodyText)
-          if (res.result === true) {
-            this.article = res.data
+          if (response.ok) {
+            this.article = JSON.parse(response.bodyText)
             this.article.update_time = this.transDate(this.article.update_time)
           } else {
             this.$message.error('get articles error!')
-            console.log(res.message)
           }
         })
     },
@@ -57,6 +56,13 @@ export default {
       newString = timeString.replace(/T/, ' ')
       newString = newString.split('.')[0]
       return newString
+    },
+    gotoArticleUpdate (id) {
+      var _this = this
+      _this.id = id
+      setTimeout(function () {
+        _this.$router.push({path: '/article/update/' + _this.id})
+      }, 2000)
     }
   }
 }
@@ -81,5 +87,14 @@ export default {
     color: #372d30;
     text-align: left;
     text-indent: 6px;
+  }
+  .detail-editor {
+    border-left-color: #fff;
+  }
+  .user-editor {
+    cursor: pointer;
+  }
+  .user-editor:hover {
+    color: #85a6ff;
   }
 </style>

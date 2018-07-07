@@ -8,7 +8,7 @@ class Category(models.Model):
     create_time = models.DateTimeField(auto_now_add=timezone.now())
     update_time = models.DateTimeField(auto_now=timezone.now())
     is_delete = models.BooleanField(default=False)
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
     describle = models.CharField(max_length=256, default="")
     # image = models.ImageField(upload_to='/var/test')
 
@@ -41,3 +41,14 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Images(models.Model):
+    create_time = models.DateTimeField(auto_now_add=timezone.now())
+    update_time = models.DateTimeField(auto_now=timezone.now())
+    is_delete = models.BooleanField(default=False)
+    name = models.CharField(max_length=256)
+    image = models.ImageField(upload_to='static/myphoto/%Y/%m/%d/', null=True, max_length=255)
+
+    def __str__(self):
+        return self.name

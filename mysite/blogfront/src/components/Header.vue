@@ -53,6 +53,9 @@ export default {
     font-weight: 600;
     cursor: pointer;
   }
+  .header-title:hover {
+    color: #85a6ff;
+  }
   .header-login {
     color: #ea6f6f;
     background-color: #fff;

@@ -42,6 +42,6 @@ export default {
     background-color: #f3fdf8;
     color: #333;
     text-align: center;
-    min-height: 800px;
+    /*min-height: 800px;*/
   }
 </style>

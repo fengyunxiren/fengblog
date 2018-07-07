@@ -1,4 +1,5 @@
 <template>
+  <div>
     <el-card class="box-card">
       <div v-for="article in articles" :key="article.id" class="article">
         <div class="info">
@@ -6,7 +7,7 @@
             <p class="author">
                 <span>
                     <i class="el-icon-edit-outline"></i>
-                    {{ getAuthor(article.author) }}
+                    {{ article.nickname }}
                 </span>
                 <span>
                     <i class="el-icon-time"></i>
@@ -19,39 +20,20 @@
                 {{ article.describle }}
             </p>
         </div>
-<!--         <div class="likes">
-            <el-row type="flex" class="home-row-bg">
-              <el-col :span="16" class="home-row-bg"><div class="home-grid-content">
-                <el-tag
-                  v-for="tag in article.tags"
-                  :key="tag.id"
-                  size="mini">
-                  {{tag.name}}
-                </el-tag>
-              </div></el-col>
-              <el-col :span="8" class="home-row-bg"><div class="home-grid-content">
-                <p class="home-likes">
-                    <span class="home-likes-reader">
-                        <i class="el-icon-view"></i>
-                        {{ article.likes.readers }}
-                    </span>
-                    <span class="home-likes-like">
-                        <i class="el-icon-star-on"></i>
-                        {{ article.likes.like.length }}
-                    </span>
-                    <span class="home-likes-disagree">
-                        <i class="el-icon-caret-bottom"></i>
-                        {{ article.likes.disagree.length }}
-                    </span>
-                    <span>
-                        <i class="el-icon-message"></i>
-                    </span>
-                </p>
-              </div></el-col>
-            </el-row>
-        </div> -->
       </div>
     </el-card>
+    <el-card class="aside-card">
+      <div class="category-title">
+        <p>主题:</p>
+      </div>
+      <div class="category-all" @click="showArticles()">
+        全部
+      </div>
+      <div class="category" v-for="category in categorys" :key="category.name" @click="selectCategory(category.name)">
+          {{ category.name }}
+      </div>
+    </el-card>
+  </div>
 </template>
 
 <script>
@@ -60,13 +42,18 @@ export default {
   data () {
     return {
       msg: 'this is main',
-      articles: []
+      articles: [],
+      categorys: []
     }
   },
   mounted: function () {
-    this.showArticles()
+    this.init()
   },
   methods: {
+    init () {
+      this.showArticles()
+      this.showCategorys()
+    },
     showArticles () {
       this.$http.get('http://127.0.0.1:8000/api/article/?format=json')
         .then((response) => {
@@ -76,19 +63,6 @@ export default {
             this.$message.error('get articles error!')
           }
         })
-    },
-    getAuthor (id) {
-      this.$http.get('http://127.0.0.1:8000/api/author/' + id.toString() + '/?format=json')
-        .then((response) => {
-          if (response.ok) {
-            var data = JSON.parse(response.bodyText)
-            console.log(data)
-            this.author = data.nickname
-          } else {
-            this.author = 'unknown'
-          }
-        })
-      return this.author
     },
     transDate (timeString) {
       var newString = ''
@@ -103,6 +77,33 @@ export default {
         console.log(_this.id)
         _this.$router.push({path: '/articles/' + _this.id})
       }, 2000)
+    },
+    showCategorys () {
+      this.$http.get('http://127.0.0.1:8000/api/category/?format=json')
+        .then((response) => {
+          if (response.ok) {
+            this.categorys = JSON.parse(response.bodyText)
+          } else {
+            this.$message.error('get categorys error!')
+          }
+        })
+    },
+    selectCategory (name) {
+      this.$http.get('http://127.0.0.1:8000/api/article/?format=json')
+        .then((response) => {
+          if (response.ok) {
+            var data = JSON.parse(response.bodyText)
+            var tmp = []
+            for (var j = 0; j < data.length; j++) {
+              if (data[j].category_name === name) {
+                tmp.push(data[j])
+              }
+            }
+            this.articles = tmp
+          } else {
+            this.$message.error('get articles error!')
+          }
+        })
     }
   }
 }
@@ -112,6 +113,52 @@ export default {
   .box-card {
     width: 80%;
     height: auto;
+    float: left;
+    min-height: 1080px;
+  }
+  .category-title {
+    text-align: left;
+    color: #909399;
+  }
+  .category-all{
+    text-align: left;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    border: 1px solid #ea6f6f;
+    border-radius: 15px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 15px;
+    background-color: #FFF;
+    color: #ea6f6f;
+    font-size: 15px;
+    cursor: pointer;
+    min-height: 20px;
+  }
+  .category-all:hover {
+    background-color: #FFF;
+    border-color: #85a6ff;
+    color: #85a6ff;
+  }
+  .category{
+    text-align: left;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    border: 1px solid #ea6f6f;
+    border-radius: 15px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 15px;
+    background-color: #ea6f6f;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    min-height: 20px;
+  }
+  .category:hover {
+    background-color: #FFF;
+    border-color: #85a6ff;
+    color: #85a6ff;
   }
   .article {
     text-align: left;
@@ -166,5 +213,12 @@ export default {
   }
   .home-likes-disagree {
     color: #c3c7b9;
+  }
+  .aside-card {
+    width: 19%;
+    height: auto;
+    float: right;
+    min-height: 1080px;
+    background-color: f4f4f4;
   }
 </style>

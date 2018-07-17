@@ -1,20 +1,39 @@
 <template>
     <div>
-        <div class="demo-input-suffix">
-            标题:
-            <el-input v-model="title" max-length="200px"></el-input>
-        </div>
-        <div class="demo-input-suffix">
-            作者:
-            <el-input v-model="author"></el-input>
-        </div>
-        <mavon-editor
-          v-model="content"
-          :defaultOpen="defaultOpen"
-          :subfield="false"
-          :ishljs="true"
-          @save="saveArticle">
-        </mavon-editor>
+      <div class="header-input">
+        <el-row class="demo-autocomplete">
+          <el-col :span="20">
+            <el-input placeholder="请输入内容" v-model="title" maxlength="80px">
+              <template slot="prepend">标题</template>
+            </el-input>
+          </el-col>
+          <el-col :span="4" class="header-col">
+            <el-select v-model="categoryId" placeholder="请选择主题">
+              <el-option
+                v-for="category in categorys"
+                :key="category.id"
+                :label="category.name"
+                :value="category.id">
+              </el-option>
+            </el-select>
+          </el-col>
+        </el-row>
+      </div>
+      <div class="header-input">
+        <el-input placeholder="请输入内容" v-model="describle">
+          <template slot="prepend">简介</template>
+        </el-input>
+      </div>
+      <mavon-editor id="creater-editor"
+        v-model="content"
+        ref="md"
+        :defaultOpen="defaultOpen"
+        :subfield="false"
+        :ishljs="true"
+        :boxShadow="false"
+        @save="saveArticle"
+        @imgAdd="imageAdd">
+      </mavon-editor>
     </div>
 </template>
 
@@ -23,55 +42,100 @@ export default {
   name: 'CreateArticle',
   data () {
     return {
+      message: 'this is create page',
       defaultOpen: 'edit',
       title: '',
-      author: '',
+      describle: '',
       content: '',
-      id: ''
+      categoryId: '',
+      author: 1,
+      categorys: {}
     }
   },
+  mounted: function () {
+    this.getCategorys()
+  },
   methods: {
+    getCategorys () {
+      this.$http.get('http://127.0.0.1:8000/api/category/?format=json')
+        .then((response) => {
+          if (response.ok) {
+            this.categorys = JSON.parse(response.bodyText)
+          } else {
+            this.$message.error('get categorys error!')
+          }
+        })
+    },
     saveArticle () {
+      if (this.title === '' || this.author === '' || this.categoryId === '' || this.content === '') {
+        this.$message.error('title and category and conten is expected!')
+        return
+      }
+      var describle
+      if (this.describle === '') {
+        if (this.content.length < 250) {
+          describle = this.content
+        } else {
+          describle = this.content.slice(0, 250)
+          describle += '...'
+        }
+      } else {
+        describle = this.describle
+      }
       var postData
       postData = {
         title: this.title,
-        abstract: 'test',
-        author: '1',
-        category: '1',
-        content: this.content
-
+        describle: describle,
+        content: this.content,
+        category: this.categoryId,
+        author: this.author
       }
-      console.log(postData)
-      if (this.id !== '') {
-        var putData
-        putData = {
-          title: this.title,
-          abstract: 'test',
-          content: this.content
-        }
-        this.$http.put('http://127.0.0.1:8000/blog/article/' + this.id + '/', putData, {emulateJSON: true})
-          .then((response) => {
-            var res = JSON.parse(response.bodyText)
-            if (res.result === true) {
-              this.defaultOpen = 'preview'
-            } else {
-              this.$message.error(res.message)
-            }
-          })
+      var _this = this
+      _this.$http.post('http://127.0.0.1:8000/api/article/', postData, {emulateJSON: true})
+        .then((response) => {
+          if (response.ok) {
+            var article = JSON.parse(response.bodyText)
+            setTimeout(function () {
+              console.log(_this.id)
+              _this.$router.push({path: '/articles/' + article.id})
+            }, 2000)
+          } else {
+            this.$message.error('update article failed!')
+          }
+        })
+    },
+    imageAdd (pos, $file) {
+      var _this = this
+      var formData = new FormData()
+      formData.append('image', $file)
+      if (this.title === '') {
+        formData.append('name', this.title)
       } else {
-        this.$http.post('http://127.0.0.1:8000/blog/article/', postData, {emulateJSON: true})
-          .then((response) => {
-            var res = JSON.parse(response.bodyText)
-            if (res.result === true) {
-              this.id = res.data.id
-              this.defaultOpen = 'preview'
-            } else {
-              this.$message.error(res.message)
-              console.log(res.message)
-            }
-          })
+        formData.append('name', 'unknown')
       }
+
+      _this.$http.post('http://127.0.0.1:8000/api/image/', formData, {emulateJSON: true})
+        .then((response) => {
+          if (response.ok) {
+            var data = JSON.parse(response.bodyText)
+            _this.$refs.md.$img2Url(pos, 'http://127.0.0.1:8000/' + data.image)
+          } else {
+            _this.$message.error('upload image error!')
+          }
+        })
     }
   }
 }
 </script>
+<style>
+  .header-col {
+    background-color: #FFF;
+  }
+  .header-item {
+    text-align: right;
+    float: right;
+  }
+  #creater-editor {
+    min-height: 800px;
+  }
+</style>

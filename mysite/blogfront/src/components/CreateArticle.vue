@@ -57,7 +57,7 @@ export default {
   },
   methods: {
     getCategorys () {
-      this.$http.get('http://127.0.0.1:8000/api/category/?format=json')
+      this.$http.get('/api/category/?format=json')
         .then((response) => {
           if (response.ok) {
             this.categorys = JSON.parse(response.bodyText)
@@ -91,7 +91,7 @@ export default {
         author: this.author
       }
       var _this = this
-      _this.$http.post('http://127.0.0.1:8000/api/article/', postData, {emulateJSON: true})
+      _this.$http.post('/api/article/', postData, {emulateJSON: true})
         .then((response) => {
           if (response.ok) {
             var article = JSON.parse(response.bodyText)
@@ -114,11 +114,11 @@ export default {
         formData.append('name', 'unknown')
       }
 
-      _this.$http.post('http://127.0.0.1:8000/api/image/', formData, {emulateJSON: true})
+      _this.$http.post('/api/image/', formData, {emulateJSON: true})
         .then((response) => {
           if (response.ok) {
             var data = JSON.parse(response.bodyText)
-            _this.$refs.md.$img2Url(pos, 'http://127.0.0.1:8000/' + data.image)
+            _this.$refs.md.$img2Url(pos, '/' + data.image)
           } else {
             _this.$message.error('upload image error!')
           }

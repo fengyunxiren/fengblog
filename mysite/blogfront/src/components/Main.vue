@@ -55,7 +55,7 @@ export default {
       this.showCategorys()
     },
     showArticles () {
-      this.$http.get('http://127.0.0.1:8000/api/article/?format=json')
+      this.$http.get('/api/article/?format=json')
         .then((response) => {
           if (response.ok) {
             this.articles = JSON.parse(response.bodyText)
@@ -79,7 +79,7 @@ export default {
       }, 2000)
     },
     showCategorys () {
-      this.$http.get('http://127.0.0.1:8000/api/category/?format=json')
+      this.$http.get('/api/category/?format=json')
         .then((response) => {
           if (response.ok) {
             this.categorys = JSON.parse(response.bodyText)
@@ -89,7 +89,7 @@ export default {
         })
     },
     selectCategory (name) {
-      this.$http.get('http://127.0.0.1:8000/api/article/?format=json')
+      this.$http.get('/api/article/?format=json')
         .then((response) => {
           if (response.ok) {
             var data = JSON.parse(response.bodyText)
@@ -218,7 +218,7 @@ export default {
     width: 19%;
     height: auto;
     float: right;
-    min-height: 1080px;
+    min-height: 100px;
     background-color: f4f4f4;
   }
 </style>

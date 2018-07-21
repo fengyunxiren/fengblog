@@ -61,7 +61,7 @@ export default {
     showArticles () {
       var id = ''
       id = this.$route.params.id
-      this.$http.get('http://127.0.0.1:8000/api/article/' + id + '/')
+      this.$http.get('/api/article/' + id + '/')
         .then((response) => {
           if (response.ok) {
             this.article = JSON.parse(response.bodyText)
@@ -81,7 +81,7 @@ export default {
         author: this.article.author
       }
       var _this = this
-      this.$http.put('http://127.0.0.1:8000/api/article/' + _this.article.id + '/', putData, {emulateJSON: true})
+      this.$http.put('/api/article/' + _this.article.id + '/', putData, {emulateJSON: true})
         .then((response) => {
           if (response.ok) {
             this.article = JSON.parse(response.bodyText)
@@ -115,11 +115,11 @@ export default {
       var formData = new FormData()
       formData.append('image', $file)
       formData.append('name', this.article.title)
-      _this.$http.post('http://127.0.0.1:8000/api/image/', formData, {emulateJSON: true})
+      _this.$http.post('/api/image/', formData, {emulateJSON: true})
         .then((response) => {
           if (response.ok) {
             var data = JSON.parse(response.bodyText)
-            _this.$refs.md.$img2Url(pos, 'http://127.0.0.1:8000/' + data.image)
+            _this.$refs.md.$img2Url(pos, '/' + data.image)
           } else {
             _this.$message.error('upload image error!')
           }
